@@ -3,6 +3,8 @@
 
 This is an Android Prework submission of **SimpleToDoApp**.
 
+Submitted by: **Niraj Patel**
+
 Time spent: 6 hours spent in total
 
 Completed user stories:
