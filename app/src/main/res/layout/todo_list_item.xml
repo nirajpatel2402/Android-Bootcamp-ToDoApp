@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
+    android:orientation="horizontal"
+    android:padding="5dip" >
+
+    <TextView
+        android:id="@+id/tvTodo"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="ToDo"
+        android:textColor="#343434"
+        android:textSize="15pt"
+        android:paddingLeft="5pt"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+    <TextView
+        android:id="@+id/tvId"
+        android:layout_width="wrap_content"
+        android:layout_alignRight="@+id/tvTodo"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textStyle="bold"
+        android:textSize="10pt"/>
+    <TextView
+        android:id="@+id/tvDueDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Due Date"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textStyle="bold"
+        android:textSize="7pt"
+        android:layout_alignBaseline="@+id/tvTodo"
+        android:layout_alignBottom="@+id/tvTodo"
+        android:layout_alignRight="@+id/tvTodo"
+        android:layout_alignEnd="@+id/tvTodo" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/priority"
+        android:text="High Priority"
+        android:textSize="6pt"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textStyle="bold"
+        android:layout_above="@+id/tvDueDate"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+</RelativeLayout>

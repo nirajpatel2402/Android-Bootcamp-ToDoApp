@@ -1,6 +1,7 @@
 package com.npatel.simpletodoapp;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -9,21 +10,20 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.apache.commons.io.FileUtils;
+import com.npatel.simpletodoapp.model.ToDoModel;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener {
 
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
+    ArrayList<ToDoModel> items = new ArrayList<ToDoModel>();
+    ToDoAdapter itemsAdapter;
+    private DbHelper dbHelper;
+
     ListView lvitems;
     private final int REQUEST_CODE = 200;
 
@@ -33,25 +33,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         lvitems= (ListView) findViewById(R.id.lvTodo);
-        items= new ArrayList<>();
+
+        dbHelper = new DbHelper(this);
 
         readItems();
-        if(items.size()==0){
-            items.add("First item");
-            items.add("Second item");
-        }
-
-
-        itemsAdapter= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,items);
+        itemsAdapter = new ToDoAdapter(this, items);
         lvitems.setAdapter(itemsAdapter);
+        lvitems.invalidate();
+
         lvitems.setOnItemLongClickListener(this);
         lvitems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-                i.putExtra("position", position);
-                i.putExtra("todoText", items.get(position));
-                System.out.println("hello :"+ items.get(position));
+                i.putExtra("position", items.get(position).getId());
+                i.putExtra("todoText", items.get(position).getName());
+                i.putExtra("dueDate", items.get(position).getDueDate());
+                i.putExtra("priority", items.get(position).getPriority());
                 startActivityForResult(i, REQUEST_CODE );
             }
         });
@@ -60,19 +58,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String todoText = data.getExtras().getString("todoText");
-        int position = data.getExtras().getInt("position");
-        System.out.println("xyz :"+position);
-        items.set(position, todoText);
+        readItems();
         itemsAdapter.notifyDataSetChanged();
-        writeItems();
-        Toast.makeText(getApplicationContext(), "Item edited", Toast.LENGTH_SHORT).show();
     }
 
     public void onAddItems(View view) {
         EditText editText=(EditText) findViewById(R.id.addText);
         String itemText =editText.getText().toString();
-        itemsAdapter.add(itemText);
+        writeItems(itemText, "Due date not set", "3");
+        readItems();
         editText.setText("");
         InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
@@ -80,31 +74,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        items.remove(position);
+        deleteItem(items.get(position).getId());
         itemsAdapter.notifyDataSetChanged();
-        writeItems();
         Toast.makeText(getApplicationContext(), "Item deleted", Toast.LENGTH_SHORT).show();
         return true;
     }
 
-    public void readItems(){
-        File myDir = getFilesDir();
-        File todoFile = new File(myDir, "todo.txt");
-        try{
-            items = new ArrayList<>(FileUtils.readLines(todoFile));
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+    private void deleteItem(int id) {
+        dbHelper.deleteData(id);
+        readItems();
     }
 
-    public void writeItems(){
-        File myDir = getFilesDir();
-        File todoFile = new File(myDir, "todo.txt");
+    public void readItems(){
+        items.clear();
+        Cursor rs = dbHelper.readData();
         try{
-            FileUtils.writeLines(todoFile, items);
-        }catch (IOException e){
+            if(rs.moveToFirst()){
+                do{
+                    ToDoModel td= new ToDoModel(rs.getInt(rs.getColumnIndex(DbHelper.TODO_ID)),rs.getString(rs.getColumnIndex(DbHelper.TODO_NAME)), rs.getString(rs.getColumnIndex(DbHelper.TODO_DUE_DATE)),rs.getString(rs.getColumnIndex(DbHelper.TODO_PRIORITY)));
+                    items.add(td);
+                }while(rs.moveToNext());
+            }
+        }catch (Exception e){
             e.printStackTrace();
+        }finally {
+            if (rs != null && !rs.isClosed()) {
+                rs.close();
+            }
         }
+
+//        if(items.size()==0){
+//            writeItems("write First item");
+//            writeItems("write Second item");
+//            readItems();
+//        }
+
+    }
+    public void writeItems(String toDo, String dueDate, String priority){
+        dbHelper.writeData(toDo, dueDate, priority);
     }
 }
 
