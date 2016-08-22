@@ -16,10 +16,11 @@ Extended Requirements:
 
  * [x] Persist the TODO item in SQLite.
  * [x] Style of ToDo item is improved using custom adapter.
- * [x] Support for setting due date to ToDo item
- * [ ] Use of DialogFragment instead of Activity 
- * [x] Support for selecting the priority of each todo item
- * [x] Improved style and color of custom list item using custom XML drawables 
+ * [x] Support for setting due date to ToDo item.
+ * [ ] Use of DialogFragment instead of Activity.
+ * [x] Support for selecting the priority of each todo item.
+ * [x] Used date picker to set due date. 
+ * [x] Improved style and color of custom list item using custom XML drawables. 
 
 Walkthrough of all user stories
 
