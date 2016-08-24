@@ -99,7 +99,6 @@ public class EditItemActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         Intent i = new Intent();
-        String p;
         dbHelper.updateRecord(position, etTodo.getText().toString(), etDueDate.getText().toString(),String.valueOf(pList.getSelectedItemPosition()));
         setResult(200, i);
         finish();

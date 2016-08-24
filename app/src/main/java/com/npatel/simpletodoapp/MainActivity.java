@@ -2,6 +2,7 @@ package com.npatel.simpletodoapp;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -18,7 +19,7 @@ import com.npatel.simpletodoapp.model.ToDoModel;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, EditItemDialogFragment.EditToDoListener{
 
     ArrayList<ToDoModel> items = new ArrayList<ToDoModel>();
     ToDoAdapter itemsAdapter;
@@ -41,16 +42,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         lvitems.setAdapter(itemsAdapter);
         lvitems.invalidate();
 
+
         lvitems.setOnItemLongClickListener(this);
         lvitems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-                i.putExtra("position", items.get(position).getId());
-                i.putExtra("todoText", items.get(position).getName());
-                i.putExtra("dueDate", items.get(position).getDueDate());
-                i.putExtra("priority", items.get(position).getPriority());
-                startActivityForResult(i, REQUEST_CODE );
+//                Intent i = new Intent(MainActivity.this, EditItemActivity.class);
+//                i.putExtra("position", items.get(position).getId());
+//                i.putExtra("todoText", items.get(position).getName());
+//                i.putExtra("dueDate", items.get(position).getDueDate());
+//                i.putExtra("priority", items.get(position).getPriority());
+//                startActivityForResult(i, REQUEST_CODE );
+
+                FragmentManager fm = getSupportFragmentManager();
+                EditItemDialogFragment editNameDialogFragment = EditItemDialogFragment.newInstance("Edit ToDo",position, items.get(position).getId() ,items.get(position).getName(),items.get(position).getDueDate(), items.get(position).getPriority());
+                editNameDialogFragment.show(fm, "edit_todo");
+                onPause();
             }
         });
     }
@@ -76,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         deleteItem(items.get(position).getId());
         itemsAdapter.notifyDataSetChanged();
-        Toast.makeText(getApplicationContext(), "Item deleted", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Item deleted", Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -102,16 +109,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 rs.close();
             }
         }
-
-//        if(items.size()==0){
-//            writeItems("write First item");
-//            writeItems("write Second item");
-//            readItems();
-//        }
-
     }
     public void writeItems(String toDo, String dueDate, String priority){
         dbHelper.writeData(toDo, dueDate, priority);
     }
-}
 
+    @Override
+    public void onFinishEditDialog(int position, int id, String todoName, String dueDate, String priority) {
+//        System.out.println("todoName: "+todoName);
+//        System.out.println("dueDate: "+dueDate);
+//        System.out.println("priority: "+priority);
+//        System.out.println("id: "+id);
+//        items.get(position).setName(todoName);
+//        items.get(position).setDueDate(dueDate);
+//        items.get(position).setPriority(priority);
+        readItems();
+        itemsAdapter.notifyDataSetChanged();
+    }
+}
